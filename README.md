@@ -161,7 +161,12 @@ def update_route():
     weldingrecord = cur.fetchone()
     if weldingrecord is not None:
         weldingrecord = [weldingrecord[0], unicode(weldingrecord[1])]
-    return jsonify( INFO = {"mqcp":mqcp, "processcard":processcard, "recordform":recordform, "workinstruction":workinstruction, "weldingrecord":weldingrecord})
+
+    cur.execute('SELECT filename,version FROM DimensionalRecord WHERE productid="%s" AND released=0;'%productid)    
+    dimensionalrecord = cur.fetchone()
+    if dimensionalrecord is not None:
+        dimensionalrecord = [dimensionalrecord[0], unicode(dimensionalrecord[1])]
+    return jsonify( INFO = {"mqcp":mqcp, "processcard":processcard, "recordform":recordform, "workinstruction":workinstruction, "weldingrecord":weldingrecord, "dimensionalrecord":dimensionalrecord})
 @product.route('/product')
 @login_required
 def product_route():
@@ -190,6 +195,9 @@ def product_route():
     
     cur.execute('SELECT * FROM WeldingRecord WHERE productid="%s" AND released=0;' % productid)
     weldingrecord = cur.fetchone()
+
+    cur.execute('SELECT * FROM DimensionalRecord WHERE productid="%s" AND released=0;' % productid)
+    dimensionalrecord = cur.fetchone()
     
     cur.execute('SELECT * FROM MQCP WHERE productid="%s" AND released=1 ORDER BY version DESC;'%productid)
     mqcps = cur.fetchall()
@@ -205,6 +213,9 @@ def product_route():
     
     cur.execute('SELECT * FROM WeldingRecord WHERE productid="%s" AND released=1 ORDER BY version DESC;' % productid)
     weldingrecords = cur.fetchall()
+
+    cur.execute('SELECT * FROM DimensionalRecord WHERE productid="%s" AND released=1 ORDER BY version DESC;' % productid)
+    dimensionalrecords = cur.fetchall()
     
-    return render_template("product.html", product=product, next=next, edit=False, mqcp=mqcp, processcard=processcard, recordform=recordform, workinstruction=workinstruction, weldingrecord=weldingrecord, mqcps=mqcps, processcards=processcards, recordforms=recordforms, workinstructions=workinstructions,weldingrecords=weldingrecords)
+    return render_template("product.html", product=product, next=next, edit=False, mqcp=mqcp, processcard=processcard, recordform=recordform, workinstruction=workinstruction, weldingrecord=weldingrecord, dimensionalrecord=dimensionalrecord, mqcps=mqcps, processcards=processcards, recordforms=recordforms, workinstructions=workinstructions,weldingrecords=weldingrecords, dimensionalrecords=dimensionalrecords)
 
